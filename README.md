@@ -1,1 +1,0 @@
-# praktyki_frontend
