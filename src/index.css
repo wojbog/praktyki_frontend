@@ -90,6 +90,10 @@ body {
 
 } 
 
+.invalid-input {
+  background-color: #ff9999 !important;
+}
+
 .invalid {
   color: red;
   align-self:flex-start;
