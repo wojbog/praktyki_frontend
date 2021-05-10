@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
-import {createUser, validate, validatePass} from "../service"
+import {validate, validatePass} from "../service"
 
-const RegisterForm = () => {
+const RegisterForm = ({createUser}) => {
 
     const [user, setUser] = useState({
         "name": "",
@@ -61,13 +61,13 @@ const RegisterForm = () => {
                         placeholder="Imię" value={user.name} 
                         onChange={event => setUser({...user, name: event.target.value})}
                         onMouseDown={(event) => setIsValid({...isValid, name: true})}
-                        required/>
+                        data-testid="name" required/>
 
                     <input id="surname" type="text" className={`${isValid.surname?"":"invalid-input"}`}
                         placeholder="Nazwisko" value={user.surname} 
                         onChange={event => setUser({...user, surname: event.target.value})} 
                         onMouseDown={(event) => setIsValid({...isValid, surname: true})}
-                        required/> 
+                        data-testid="surname" required/> 
             </div>
 
             <input id="email" type="text" 
@@ -75,7 +75,7 @@ const RegisterForm = () => {
                 placeholder="E-mail" value={user.email} 
                 onChange={event => setUser({...user, email: event.target.value})}
                 onMouseDown={(event) => setIsValid({...isValid, email: true})}
-                required/>
+                data-testid="email" required/>
             
             <div className="input-holder">
                 <input id="street" type="text" placeholder="Ulica" 
@@ -83,28 +83,28 @@ const RegisterForm = () => {
                     value={user.street} 
                     onChange={event => setUser({...user, street: event.target.value})}
                     onMouseDown={(event) => setIsValid({...isValid, street: true})}
-                    required/>
+                    data-testid="street" required/>
 
                 <input id="number" type="text" placeholder="Numer"
                     className={`${isValid.number?"":"invalid-input"}`} 
                     value={user.number} 
                     onChange={event => setUser({...user, number: event.target.value})}
                     onMouseDown={(event) => setIsValid({...isValid, number: true})}
-                    required/>
+                    data-testid="number" required/>
                 
                 <input id="city" type="text" placeholder="Miasto"
                     className={`${isValid.city?"":"invalid-input"}`}
                     value={user.city} 
                     onChange={event => setUser({...user, city: event.target.value})}
                     onMouseDown={(event) => setIsValid({...isValid, city: true})}
-                    required/>
+                    data-testid="city" required/>
 
                 <input id="post_code" type="text" placeholder="Kod pocztowy"
                     className={`${isValid.post_code?"":"invalid-input"}`}
                     value={user.post_code} 
                     onChange={event => setUser({...user, post_code: event.target.value})} 
                     onMouseDown={(event) => setIsValid({...isValid, post_code: true})}
-                    required/>
+                    data-testid="post_code" required/>
 
             </div>
             
@@ -115,7 +115,7 @@ const RegisterForm = () => {
                         setUser({...user, pass: event.target.value})
                         validatePass(event.target.value) ? setPassStr(true):setPassStr(false)
                         passConf===event.target.value  && setPassDiff(false)
-                }} required/>           
+                }} data-testid="pass" required/>           
             {!passStr && <p className="invalid">Hasło jest za słabe!</p>}
             
             
@@ -123,7 +123,7 @@ const RegisterForm = () => {
                 value = {passConf} onChange={event => {
                     setPassConf(event.target.value)
                     event.target.value!==user.pass ? setPassDiff(true) : setPassDiff(false)}
-                 } required/>
+                 } data-testid="pass-confirmation" required/>
             
             {passDiff && <p className="invalid">Hasła się nie zgadzają!</p>}
             {invalid && <p className="invalid">Jedno lub więcej pól jest nieprawidłowych!</p>}
