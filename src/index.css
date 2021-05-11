@@ -54,8 +54,8 @@ body {
   font-size: 15px;
   text-indent: 15px;
 }
-#register-form>input {
-  margin:10px;
+.register-wide-input {
+  margin:10px 0px;
   width: 430px;
 }
 
@@ -94,11 +94,91 @@ body {
   background-color: #ff9999 !important;
 }
 
-.invalid {
+.invalid-footage {
   color: red;
   align-self:flex-start;
   margin-top: 5px;
   margin-left: 15px;
+}
+
+/* Pop-ups */
+
+.invalid-message {
+  position: absolute;
+  background-color: #B43757;
+  color: white;
+
+  height: auto;
+  width: auto;
+  padding: 15px;
+  top: 50%;
+  transform: translateY(-50%);   
+
+  border: 1px solid #000;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;    
+
+  white-space: nowrap;
+}
+
+.fade-start {
+  opacity:0;
+}
+
+.fade-end{
+  opacity:1;
+}
+
+.invalid-message-left {
+  right: calc(100% + 24px);
+}
+
+.invalid-message-right {
+  left: calc(100% + 24px);
+}
+
+.invalid-message:after {
+  content:"";
+  position: absolute;
+  background-color: #B43757;
+
+  width: 16px;
+  height: 16px;
+  top: 50%; 
+  transform: rotate(45deg);
+  margin-top: -8px; 
+} 
+
+.invalid-message-left:after{
+  border-left: 0;
+  border-top: 1px solid #000;
+  border-right: 1px solid #000;
+
+  border-bottom: 0;
+  left: 100%; 
+  margin-left: -8px;
+}
+
+.invalid-message-right:after{
+  border-left: 1px solid #000;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 1px solid #000;
+
+  right: 100%;
+  margin-right: -8px;
+}
+
+
+.holder {
+  position: relative;
+}
+
+h2 {
+  margin-top: 0px;
+}
+a {
+  color: inherit;
 }
 
 code {

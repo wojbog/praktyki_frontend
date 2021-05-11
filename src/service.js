@@ -3,15 +3,28 @@ import axios from 'axios'
 const HOST = "127.0.0.1"
 const PORT = "3001"
 
-export function createUser(user) {
-axios.post(`https://${HOST}:${PORT}/createUser`,
-                    {"user": user},
-                    {wihCredentials:true},
-            ).then(response=>{console.log("registration res: ", response)}
-            ).catch(error => {console.log("registration error: ", error)})
-}
 
-export function validate(usr) { //returns array of invalid keys
+/** Send createUser request
+ * @param usr user object
+ * @return null if success error if it occurr
+ */
+export function createUser(user) {
+
+    axios.post(`https://${HOST}:${PORT}/createUser`,
+                        {"user": user},
+                        {wihCredentials:true},
+                ).then(response => {
+                    const obj = JSON.parse(response)
+                    if (obj.success) {
+                        return null
+                    } else {
+                        return obj.error
+                    }
+                }   
+                ).catch(error => {return error})
+    }
+
+export function validateUser(usr) { //returns array of invalid keys
 
     const errors = []
 
@@ -36,7 +49,8 @@ export function validate(usr) { //returns array of invalid keys
                 break
             }
 
-            case 'pass': { 
+            case 'pass':
+            case 'pass_confimation': { 
                 if (!validatePass(value)) errors.push(key)
                 break
             }
