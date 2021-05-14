@@ -1,27 +1,19 @@
-import { Route, Redirect } from "react-router-dom";
-import { isAuthenticated } from "./service";
+import { Route, Redirect } from "react-router-dom"
+import { isAuthenticated } from "./service"
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={(props) => {
-        if (isAuthenticated()) {
-          return <Component {...props} />;
-        } else {
-          return 
-            <Redirect
-              to={{
-                pathname: "/logowanie",
-                state: {
-                  from: props.location,
-                },
-              }}
-            />
-        }
-      }}
-    />
-  );
-};
+    return (
+        <Route
+            {...rest}
+            render={(props) => {
+                if (isAuthenticated()) {
+                    return <Component {...props} />
+                } else {
+                    return <Redirect to="/logowanie" />
+                }
+            }}
+        />
+    )
+}
 
-export default ProtectedRoute;
+export default ProtectedRoute
