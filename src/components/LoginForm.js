@@ -1,74 +1,74 @@
-import { useState, useEffect } from "react"
-import { useTransition, animated } from "react-spring"
-import { Link, useHistory} from "react-router-dom"
-import { login, validateEmail } from "../service.js"
-import Input from "./Input"
+import { useState, useEffect } from "react";
+import { useTransition, animated } from "react-spring";
+import { Link, useHistory } from "react-router-dom";
+import { login, validateEmail } from "../service.js";
+import Input from "./Input";
 
 const LoginForm = ({ login }) => {
-
     const [user, setUser] = useState({
         email: "",
         pass: "",
-    })
+    });
     const [isValid, setIsValid] = useState({
         email: true,
         pass: true,
-    })
+    });
 
-    const [emailValidError, setEmailValidError] = useState("") //true if email pattern is invalid
+    const [emailValidError, setEmailValidError] = useState(""); //true if email pattern is invalid
 
-    const [isResponseError, setIsResponseError] = useState(false) //true if login returns an error
-    const [responseError, setResponseError] = useState(false) //contains displayed message of response error
+    const [isResponseError, setIsResponseError] = useState(false); //true if login returns an error
+    const [responseError, setResponseError] = useState(false); //contains displayed message of response error
     const responseErrorAnimation = useTransition(responseError, {
         from: { opacity: 0 },
         enter: { opacity: 1 },
         leave: { opacity: 0 },
         config: { duration: 300 },
-    })
+    });
 
-    let history = useHistory()
+    let history = useHistory();
 
     const handleSubmit = (event) => {
-        event.preventDefault()
+        event.preventDefault();
 
         if (user.email == "" || user.pass == "") {
             //some validation
             let email = true,
-                pass = true
+                pass = true;
             if (user.email === "") {
-                email = false
-                setEmailValidError("To pole nie może być puste!")
+                email = false;
+                setEmailValidError("To pole nie może być puste!");
             }
             if (user.pass === "") {
-                pass = false
+                pass = false;
             }
-            setIsValid({ email: email, pass: pass })
+            setIsValid({ email: email, pass: pass });
         } else if (!validateEmail(user.email)) {
-            setEmailValidError("To nie jest poprawny e-mail!")
-            setIsValid({ ...isValid, email: false })
+            setEmailValidError("To nie jest poprawny e-mail!");
+            setIsValid({ ...isValid, email: false });
         } else {
-            const err = login(user) 
+            const err = login(user);
             if (err !== null) {
                 switch (err) {
                     case "incorret password or email": {
-                        setIsResponseError(true)
+                        setIsResponseError(true);
                         setResponseError(
                             "E-mail lub hasło nie zgadzają się. Spróbuj ponownie"
-                        )
+                        );
                     }
                     default: {
-                        setIsResponseError(true)
+                        setIsResponseError(true);
                         setResponseError(
                             "Ups, coś poszło nie tak. Spróbuj ponownie później"
-                        )
-                        console.log(err)
+                        );
+                        console.log(err);
                     }
                 }
-            } else { //redirect to /app page
-                history.push("/app") 
+            } else {
+                //redirect to /app page
+                history.push("/app");
             }
         }
-    }
+    };
 
     return (
         <div className="form-container">
@@ -131,7 +131,7 @@ const LoginForm = ({ login }) => {
                 <Link to="#">Zapomniałem hasła</Link>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default LoginForm
+export default LoginForm;

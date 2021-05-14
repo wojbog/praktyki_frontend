@@ -1,7 +1,5 @@
 const Nothing = () => {
-    return (
-        <p>Nothing here</p>
-    )
-}
+    return <p>Nothing here</p>;
+};
 
-export default Nothing
+export default Nothing;

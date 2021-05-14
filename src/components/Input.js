@@ -1,4 +1,4 @@
-import { useTransition, animated } from "react-spring"
+import { useTransition, animated } from "react-spring";
 
 const Input = ({
     id,
@@ -20,7 +20,7 @@ const Input = ({
         enter: { opacity: 1 },
         leave: { opacity: 0 },
         config: { duration: 600 },
-    })
+    });
 
     return (
         <div className="holder">
@@ -63,7 +63,7 @@ const Input = ({
                 )
             )}
         </div>
-    )
-}
+    );
+};
 
-export default Input
+export default Input;

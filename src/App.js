@@ -1,13 +1,13 @@
-import { useState } from "react"
-import { BrowserRouter as Router, Route } from "react-router-dom"
+import { useState } from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
-import "./App.css"
-import { createUser, login } from "./service"
+import "./App.css";
+import { createUser, login } from "./service";
 /* components*/
-import RegisterForm from "./components/RegisterForm"
-import LoginForm from "./components/LoginForm"
-import ProtectedRoute from "./ProtectedRoute"
-import Nothing from "./components/Nothing"
+import RegisterForm from "./components/RegisterForm";
+import LoginForm from "./components/LoginForm";
+import ProtectedRoute from "./ProtectedRoute";
+import Nothing from "./components/Nothing";
 
 function App() {
     return (
@@ -25,7 +25,7 @@ function App() {
             />
             <ProtectedRoute exact path="/app" component={Nothing} />
         </>
-    )
+    );
 }
 
-export default App
+export default App;
