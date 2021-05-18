@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 
 import "./App.css";
 import { createUser, login } from "./service";
@@ -11,20 +11,12 @@ import Nothing from "./components/Nothing";
 
 function App() {
     return (
-        <>
-            <Route exact path="/" render={() => <Nothing />} />
-            <Route
-                exact
-                path="/rejestracja"
-                render={() => <RegisterForm createUser={createUser} />}
-            />
-            <Route
-                exact
-                path="/logowanie"
-                render={() => <LoginForm login={login} />}
-            />
-            <ProtectedRoute exact path="/app" component={Nothing} />
-        </>
+        <Switch>
+            <Route exact path="/" component={Nothing} />
+            <Route exact path="/rejestracja" component={RegisterForm} />
+            <Route exact path="/logowanie" component={LoginForm} />
+            <ProtectedRoute path="/app" component={Nothing} />
+        </Switch>
     );
 }
 

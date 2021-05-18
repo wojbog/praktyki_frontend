@@ -1,58 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTransition, animated } from "react-spring";
-import { validateUser, validatePass } from "../service";
+import { useForm } from "react-hook-form";
+import { createUser, isPostCode, isAddressNumber } from "../service";
+import { isEmail, isStrongPassword, isAlpha, isAlphanumeric } from "validator";
 import Input from "./Input";
 
-const RegisterForm = ({ createUser }) => {
-    const [user, setUser] = useState({
-        name: "",
-        surname: "",
-        email: "",
-        street: "",
-        number: "",
-        city: "",
-        post_code: "",
-        pass: "",
-    });
-
-    const [passDiff, setPassDiff] = useState(false); //true if "pass" and "pass-confirmation" are not equal
-    const passDiffAnimation = useTransition(passDiff, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        config: { duration: 300 },
-    });
-
-    const [passStr, setPassStr] = useState(true); //true if password is strong enough
-    const passStrAnimation = useTransition(!passStr, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        config: { duration: 300 },
-    });
-
-    const [invalid, setInvalid] = useState(false); //true if after submiting at least one field is invalid
-    const invalidAnimation = useTransition(invalid, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
-        config: { duration: 300 },
-    });
-
-    const [passConf, setPassConf] = useState(""); //contains pass_confirmation value
-
-    const [isValid, setIsValid] = useState({
-        name: true,
-        surname: true,
-        email: true,
-        street: true,
-        number: true,
-        city: true,
-        post_code: true,
-        pass: true,
-        pass_confirmation: true,
-    });
-
+const RegisterForm = () => {
     const [success, setSuccess] = useState(false); //true if registration was success
     const [responseError, setResponseError] = useState(false); //true if createUser returns an error
 
@@ -63,35 +16,21 @@ const RegisterForm = ({ createUser }) => {
         config: { duration: 300 },
     });
 
-    /** Go through validation process. If passed calls createUser function.
-     * with response error shows response-error message
-     * with success shows registration-end message*/
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setInvalid(false);
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+        getValues,
+    } = useForm({ mode: "onBlur", reValidateMode: "onBlur" });
 
-        if (!passDiff && passStr) {
-            const err = validateUser(user); //err is an array of invalids user keys
-            if (err.length !== 0) {
-                //make invalid fields red and pop info under form
-                setInvalid(true);
-                setIsValid({
-                    ...err.reduce((res, item) => {
-                        //change all invalid keys to false
-                        res[item] = false;
-                        return res;
-                    }, isValid),
-                });
-            } else {
-                const error = createUser(user);
-
-                if (error === null) {
-                    setSuccess(true);
-                } else {
-                    console.log(error);
-                    setResponseError(true);
-                }
-            }
+    const onSubmit = (data) => {
+        delete data.pass_confirmation;
+        const error = createUser(data);
+        if (error === null) {
+            setSuccess(true);
+        } else {
+            console.log(error);
+            setResponseError(true);
         }
     };
 
@@ -101,171 +40,163 @@ const RegisterForm = ({ createUser }) => {
                 <form
                     id="register-form"
                     className="form"
-                    onSubmit={handleSubmit}
+                    onSubmit={handleSubmit(onSubmit)}
+                    onClick={() => setResponseError(false)}
                 >
                     <h1>Rejestracja</h1>
                     <div className="input-holder">
                         <Input
                             id="name"
+                            name="name"
                             placeholder="Imię"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Wpisz prawidłowe imię!"
+                            register={register("name", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste!",
+                                },
+                                validate: (input) =>
+                                    isAlpha(input, "pl-PL", { ignore: " " }) ||
+                                    "Wpisz prawidłowe imię!",
+                            })}
+                            isError={errors.name}
                             invMsgDirection="left"
                         />
-
                         <Input
                             id="surname"
+                            name="surname"
                             placeholder="Nazwisko"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Wpisz prawidłowe nazwisko!"
+                            register={register("surname", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste!",
+                                },
+                                validate: (input) =>
+                                    isAlpha(input, "pl-PL", { ignore: " " }) ||
+                                    "Wpisz prawidłowe nazwisko!",
+                            })}
+                            isError={errors.surname}
                             invMsgDirection="right"
                         />
                     </div>
-
                     <Input
                         id="email"
+                        name="email"
                         className="register-wide-input"
                         placeholder="E-mail"
-                        isValid={isValid}
-                        setIsValid={setIsValid}
-                        user={user}
-                        setUser={setUser}
-                        invMsg="E-mail jest nieprawidłowy!"
+                        register={register("email", {
+                            required: {
+                                value: true,
+                                message: "To pole nie może być puste!",
+                            },
+                            validate: (input) =>
+                                isEmail(input) || "E-mail jest nieprawidłowy!",
+                        })}
+                        isError={errors.email}
                         invMsgDirection="left"
                     />
-
                     <div className="input-holder">
                         <Input
                             id="street"
+                            name="street"
                             placeholder="Ulica"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Ulica jest nieprawidłowa!"
+                            register={register("street", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste!",
+                                },
+                                validate: (input) =>
+                                    isAlphanumeric(input, "pl-PL", {
+                                        ignore: " ",
+                                    }) || "Ulica jest nieprawidłowa!",
+                            })}
+                            isError={errors.street}
                             invMsgDirection="left"
                         />
-
                         <Input
                             id="number"
+                            name="number"
                             placeholder="Numer"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Numer jest nieprawidłowy!"
+                            register={register("number", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste!",
+                                },
+                                validate: (input) =>
+                                    isAddressNumber(input) ||
+                                    "Numer jest nieprawidłowy!",
+                            })}
+                            isError={errors.number}
                             invMsgDirection="right"
                         />
-
                         <Input
                             id="city"
+                            name="city"
                             placeholder="Miasto"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Nazwa miasta jest nieprawidłowa!"
+                            register={register("city", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste!",
+                                },
+                                validate: (input) =>
+                                    isAlpha(input, "pl-PL", { ignore: " " }) ||
+                                    "Nazwa miasta jest nieprawidłowa!",
+                            })}
+                            isError={errors.city}
                             invMsgDirection="left"
                         />
-
                         <Input
                             id="post_code"
+                            name="post_code"
                             placeholder="Kod pocztowy"
-                            isValid={isValid}
-                            setIsValid={setIsValid}
-                            user={user}
-                            setUser={setUser}
-                            invMsg="Kod pocztowy musi być w formacie: __-___"
+                            register={register("post_code", {
+                                required: {
+                                    value: true,
+                                    message: "To pole nie może być puste",
+                                },
+                                validate: (input) =>
+                                    isPostCode(input) ||
+                                    "Kod pocztowy musi być w formacie: __-___",
+                            })}
+                            isError={errors.post_code}
                             invMsgDirection="right"
                         />
                     </div>
-
                     <Input
                         id="pass"
-                        placeholder="Hasło"
-                        type="password"
+                        name="pass"
                         className="register-wide-input"
-                        isValid={isValid}
-                        setIsValid={setIsValid}
-                        user={user}
-                        setUser={setUser}
-                        invMsg=""
+                        type="password"
+                        placeholder="Hasło"
+                        register={register("pass", {
+                            required: {
+                                value: true,
+                                message: "To pole nie może być puste!",
+                            },
+                            validate: (input) =>
+                                isStrongPassword(input) ||
+                                "Hasło jest za słabe!",
+                        })}
+                        isError={errors.pass}
                         invMsgDirection="left"
-                        onChange={(event) => {
-                            setUser({ ...user, pass: event.target.value });
-                            validatePass(event.target.value)
-                                ? setPassStr(true)
-                                : setPassStr(false);
-                            passConf === event.target.value &&
-                                setPassDiff(false);
-                        }}
                     />
-
-                    {passStrAnimation((style, item) =>
-                        item ? (
-                            <animated.p
-                                style={style}
-                                className="invalid-footage"
-                                data-testid="invalid-msg"
-                            >
-                                Hasło jest za słabe!
-                            </animated.p>
-                        ) : (
-                            ""
-                        )
-                    )}
-
                     <Input
                         id="pass_confirmation"
-                        placeholder="Potwierdź hasło"
-                        type="password"
+                        name="pass_confirmation"
                         className="register-wide-input"
-                        value={passConf}
-                        isValid={isValid}
-                        setIsValid={setIsValid}
-                        invMsg=""
+                        type="password"
+                        placeholder="Potwierdź hasło"
+                        register={register("pass_confirmation", {
+                            required: {
+                                value: true,
+                                message: "To pole nie może być puste!",
+                            },
+                            validate: (input) =>
+                                input === getValues()["pass"] ||
+                                "Hasła się nie zgadzają!",
+                        })}
+                        isError={errors.pass_confirmation}
                         invMsgDirection="left"
-                        onChange={(event) => {
-                            setPassConf(event.target.value);
-                            event.target.value !== user.pass
-                                ? setPassDiff(true)
-                                : setPassDiff(false);
-                        }}
                     />
-
-                    {passDiffAnimation((style, item) =>
-                        item ? (
-                            <animated.p
-                                style={style}
-                                className="invalid-footage"
-                                data-testid="invalid-msg"
-                            >
-                                Hasła się nie zgadzają!
-                            </animated.p>
-                        ) : (
-                            ""
-                        )
-                    )}
-
-                    {invalidAnimation((style, item) =>
-                        item ? (
-                            <animated.p
-                                style={style}
-                                className="invalid-footage"
-                                data-testid="invalid-msg"
-                            >
-                                Jedno lub więcej pól jest nieprawidłowych!
-                            </animated.p>
-                        ) : (
-                            ""
-                        )
-                    )}
 
                     {responseErrorAnimation((style, item) =>
                         item ? (

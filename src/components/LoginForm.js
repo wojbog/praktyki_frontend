@@ -1,21 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTransition, animated } from "react-spring";
+import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
-import { login, validateEmail } from "../service.js";
+import { login } from "../service.js";
+import { isEmail } from "validator";
 import Input from "./Input";
 
-const LoginForm = ({ login }) => {
-    const [user, setUser] = useState({
-        email: "",
-        pass: "",
-    });
-    const [isValid, setIsValid] = useState({
-        email: true,
-        pass: true,
-    });
-
-    const [emailValidError, setEmailValidError] = useState(""); //true if email pattern is invalid
-
+const LoginForm = () => {
     const [isResponseError, setIsResponseError] = useState(false); //true if login returns an error
     const [responseError, setResponseError] = useState(false); //contains displayed message of response error
     const responseErrorAnimation = useTransition(responseError, {
@@ -27,83 +18,76 @@ const LoginForm = ({ login }) => {
 
     let history = useHistory();
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (user.email == "" || user.pass == "") {
-            //some validation
-            let email = true,
-                pass = true;
-            if (user.email === "") {
-                email = false;
-                setEmailValidError("To pole nie może być puste!");
-            }
-            if (user.pass === "") {
-                pass = false;
-            }
-            setIsValid({ email: email, pass: pass });
-        } else if (!validateEmail(user.email)) {
-            setEmailValidError("To nie jest poprawny e-mail!");
-            setIsValid({ ...isValid, email: false });
-        } else {
-            const err = login(user);
-            if (err !== null) {
-                switch (err) {
-                    case "incorret password or email": {
-                        setIsResponseError(true);
-                        setResponseError(
-                            "E-mail lub hasło nie zgadzają się. Spróbuj ponownie"
-                        );
-                    }
-                    default: {
-                        setIsResponseError(true);
-                        setResponseError(
-                            "Ups, coś poszło nie tak. Spróbuj ponownie później"
-                        );
-                        console.log(err);
-                    }
+    const onSubmit = (data) => {
+        const error = login(data);
+        if (error !== null) {
+            switch (error) {
+                case "incorrect password or email": {
+                    setIsResponseError(true);
+                    setResponseError(
+                        "E-mail lub hasło nie zgadzają się. Spróbuj ponownie"
+                    );
                 }
-            } else {
-                //redirect to /app page
-                history.push("/app");
+                default: {
+                    setIsResponseError(true);
+                    setResponseError(
+                        "Ups, coś poszło nie tak. Spróbuj ponownie później"
+                    );
+                    console.log(error);
+                }
             }
+        } else {
+            history.push("/app");
         }
     };
+
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+        getValues,
+    } = useForm({ mode: "onBlur" });
 
     return (
         <div className="form-container">
             <form
                 id="login-form"
                 className="form"
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 data-testid="login-form"
             >
                 <h1>Logowanie</h1>
                 <Input
                     id="email"
                     className="login-input"
+                    name="email"
                     placeholder="E-mail"
-                    isValid={isValid}
-                    setIsValid={setIsValid}
-                    user={user}
-                    setUser={setUser}
-                    invMsg={emailValidError}
+                    register={register("email", {
+                        required: {
+                            value: true,
+                            message: "To pole nie może być puste!",
+                        },
+                        validate: (input) =>
+                            isEmail(input) || "To nie jest poprawny e-mail!",
+                    })}
+                    isError={errors.email}
                     invMsgDirection="left"
-                    required={false}
                 />
 
                 <Input
                     id="pass"
                     className="login-input"
-                    placeholder="Hasło"
+                    name="pass"
                     type="password"
-                    isValid={isValid}
-                    setIsValid={setIsValid}
-                    user={user}
-                    setUser={setUser}
-                    invMsg="To pole nie może być puste!"
+                    placeholder="Hasło"
+                    register={register("pass", {
+                        required: {
+                            value: true,
+                            message: "To pole nie może być puste!",
+                        },
+                    })}
+                    isError={errors.pass}
                     invMsgDirection="left"
-                    required={false}
                 />
 
                 <input

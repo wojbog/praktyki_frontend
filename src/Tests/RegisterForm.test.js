@@ -1,5 +1,11 @@
 import { act, fireEvent, render } from "@testing-library/react";
 import RegisterForm from "../components/RegisterForm";
+import { createUser } from "../service";
+
+jest.mock("../service", () => ({
+    ...jest.requireActual("../service.js"),
+    createUser: jest.fn(),
+}));
 
 describe("Proper registration", () => {
     describe("with valid inputs", () => {
@@ -16,10 +22,8 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm />);
+            //  createUser.mockResolvedValue(null);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(properUser)) {
@@ -28,6 +32,7 @@ describe("Proper registration", () => {
                         fireEvent.change(inputNode, {
                             target: { value: value },
                         });
+                        inputNode.blur();
                     });
                 }
             });
@@ -37,8 +42,9 @@ describe("Proper registration", () => {
                 );
             });
 
-            expect(mockCreateUser).toHaveBeenCalled();
+            expect(createUser).toHaveBeenCalled();
         });
+
         it("render success message", async () => {
             const properUser = {
                 name: "Andrzej",
@@ -52,11 +58,8 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            mockCreateUser.mockReturnValue(null);
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm />);
+            createUser.mockReturnValue(null);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(properUser)) {
@@ -92,10 +95,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -112,14 +112,11 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe("Wpisz prawidłowe imię!");
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
-            );
         });
     });
 
@@ -137,10 +134,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -157,14 +151,11 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe("Wpisz prawidłowe nazwisko!");
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
-            );
         });
     });
 
@@ -182,10 +173,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -202,17 +190,51 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe("E-mail jest nieprawidłowy!");
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
-            );
         });
     });
+    describe("with invalid street", () => {
+        it("doesnt call the createUser function and shows proper message", async () => {
+            const invUser = {
+                name: "Andrzej",
+                surname: "Andrzej",
+                email: "adnrzej_andrzej@wp.pl",
+                street: "virus.jpg",
+                number: "7",
+                city: "Łódź",
+                post_code: "60-601",
+                pass: "Haasło1!",
+                pass_confirmation: "Haasło1!",
+            };
 
+            const component = render(<RegisterForm createUser={createUser} />);
+
+            await act(async () => {
+                for (const [key, value] of Object.entries(invUser)) {
+                    const inputNode = component.getByTestId(key);
+                    await act(async () => {
+                        fireEvent.change(inputNode, {
+                            target: { value: value },
+                        });
+                    });
+                }
+            });
+            await act(async () => {
+                fireEvent.click(
+                    component.getByDisplayValue("Zarejestruj się!")
+                );
+            });
+            expect(createUser).not.toHaveBeenCalled();
+
+            const warnings = component.getAllByTestId("invalid-msg");
+            expect(warnings.length).toBe(1);
+            expect(warnings[0].textContent).toBe("Ulica jest nieprawidłowa!");
+        });
+    });
     describe("with invalid number", () => {
         it("doesnt call the createUser function and shows proper message", async () => {
             const invUser = {
@@ -227,10 +249,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -247,14 +266,11 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe("Numer jest nieprawidłowy!");
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
-            );
         });
     });
 
@@ -272,10 +288,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -292,15 +305,12 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe(
                 "Nazwa miasta jest nieprawidłowa!"
-            );
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
             );
         });
     });
@@ -319,10 +329,7 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -339,15 +346,12 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
-            expect(warnings.length).toBe(2);
+            expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe(
                 "Kod pocztowy musi być w formacie: __-___"
-            );
-            expect(warnings[1].textContent).toBe(
-                "Jedno lub więcej pól jest nieprawidłowych!"
             );
         });
     });
@@ -361,15 +365,12 @@ describe("Proper registration", () => {
                 street: "Warszawska",
                 number: "13B",
                 city: "Łódź",
-                post_code: "760-601",
+                post_code: "60-601",
                 pass: "hasło",
                 pass_confirmation: "hasło",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -386,7 +387,7 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
             expect(warnings.length).toBe(1);
@@ -396,21 +397,18 @@ describe("Proper registration", () => {
     describe("with wrong password confirmation", () => {
         it("doesnt call the createUser function and shows proper message", async () => {
             const invUser = {
-                name: "2ojO!",
-                surname: "Andrzej",
-                email: ".adnrzej_andrzej@wp.pl",
+                name: "Kamil",
+                surname: "Ślimak",
+                email: "coolslimak@wp.pl",
                 street: "Warszawska",
                 number: "13B",
                 city: "Łódź",
-                post_code: "760-601",
+                post_code: "60-601",
                 pass: "Haasło1!",
                 pass_confirmation: "cotoznaczyconfirmation",
             };
 
-            const mockCreateUser = jest.fn();
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
@@ -427,7 +425,7 @@ describe("Proper registration", () => {
                     component.getByDisplayValue("Zarejestruj się!")
                 );
             });
-            expect(mockCreateUser).not.toHaveBeenCalled();
+            expect(createUser).not.toHaveBeenCalled();
 
             const warnings = component.getAllByTestId("invalid-msg");
             expect(warnings.length).toBe(1);
@@ -449,11 +447,8 @@ describe("Proper registration", () => {
                 pass_confirmation: "Haasło1!",
             };
 
-            const mockCreateUser = jest.fn();
-            mockCreateUser.mockReturnValue("validation error");
-            const component = render(
-                <RegisterForm createUser={mockCreateUser} />
-            );
+            createUser.mockReturnValue("validation error");
+            const component = render(<RegisterForm createUser={createUser} />);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(invUser)) {
