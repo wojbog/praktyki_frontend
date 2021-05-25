@@ -9,7 +9,7 @@ import Input from "./Input";
 const LoginForm = () => {
     const [isResponseError, setIsResponseError] = useState(false); //true if login returns an error
     const [responseError, setResponseError] = useState(false); //contains displayed message of response error
-    const responseErrorAnimation = useTransition(responseError, {
+    const responseErrorAnimation = useTransition(isResponseError, {
         from: { opacity: 0 },
         enter: { opacity: 1 },
         leave: { opacity: 0 },
@@ -18,34 +18,34 @@ const LoginForm = () => {
 
     let history = useHistory();
 
-    const onSubmit = (data) => {
-        const error = login(data);
-        if (error !== null) {
-            switch (error) {
+    const onSubmit =async (data) => {
+        const error = await login(data);
+        if (!error.success) {
+            switch (error.error) {
                 case "incorrect password or email": {
                     setIsResponseError(true);
                     setResponseError(
                         "E-mail lub hasło nie zgadzają się. Spróbuj ponownie"
                     );
+                    break;
                 }
                 default: {
                     setIsResponseError(true);
                     setResponseError(
                         "Ups, coś poszło nie tak. Spróbuj ponownie później"
                     );
-                    console.log(error);
+                    break;
                 }
             }
         } else {
-            history.push("/app");
+            history.push("/animals");
         }
     };
 
     const {
         handleSubmit,
         register,
-        formState: { errors },
-        getValues,
+        formState: { errors }
     } = useForm({ mode: "onBlur" });
 
     return (

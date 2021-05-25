@@ -1,31 +1,28 @@
 import axios from "axios";
-import { useState } from "react";
 
 const HOST = "127.0.0.1";
 const PORT = "3001";
 
 let authenticated = false;
+let token="";
 /** Send createUser request
  * @param user user object
  * @return null if success, error if it occurred
  */
 export const createUser = async (user) => {
-    try {
-        const response = await axios.post(
-            `https://${HOST}:${PORT}/createUser`,
-            { user: user },
-            { timeout: 2000 },
-            { wihCredentials: true }
-        );
-        const obj = JSON.parse(response);
-        if (obj.success) {
-            return null;
-        } else {
-            return obj.error;
-        }
-    } catch (error) {
-        return error;
-    }
+    return await axios
+        .post(
+            `http://${HOST}:${PORT}/createUser`,
+            { ...user },
+            { "Content-Type": "application/json" },
+            { timeout: 3000 }
+        )
+        .then((response) => {
+            return response.data;
+        })
+        .catch((error) => {
+            return error.response.data;
+        });
 };
 
 /** Send login request
@@ -35,23 +32,21 @@ export const createUser = async (user) => {
  */
 
 export const login = async (user) => {
-    try {
-        const response = await axios.post(
-            `https://${HOST}:${PORT}/login`,
-            { user: user },
-            { timeout: 2000 }
-        );
-        const obj = JSON.parse(response);
-        if (obj.success) {
+    return await axios
+        .post(
+            `http://${HOST}:${PORT}/login`,
+            { ...user },
+            { "Content-Type": "application/json" },
+            { timeout: 3000 }
+        )
+        .then((response) => {
             authenticated = true;
-            return null;
-        } else {
-            return obj.error;
-        }
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
+            token=response.data.token
+            return response.data;
+        })
+        .catch((error) => {
+            return error.response.data;
+        });
 };
 
 export const isAuthenticated = () => {
@@ -67,3 +62,40 @@ export const isPostCode = (post_code) => {
     const pattern = /^\d{2}-\d{3}$/;
     return pattern.test(post_code);
 };
+
+
+export const getAnimals=async(data) => {
+    return await axios.get(  `http://${HOST}:${PORT}/getAnimals`,{
+    params: {...data}
+    },{
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            timeout:1000,
+        },
+    }    ).then((response) => {
+        console.log(response.data)
+        return response.data
+    }).catch((error) => {
+        console.log(error.response.data)
+        return error.response.data;
+    });
+
+}
+
+export const addAnimal =async(data)=>{
+    console.log("działa")
+    return await axios
+    .post(`http://${HOST}:${PORT}/addAnimal`,
+        { ...data },
+        { "Content-Type": "application/json" ,
+        "Authorization": `Bearer ${token}`},
+        { timeout: 3000 }
+    )
+    .then((response) => {
+        return response.data;
+    })
+    .catch((error) => {
+        return error.response.data;
+    });
+}
