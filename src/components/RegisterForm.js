@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useTransition, animated } from "react-spring";
 import { useForm } from "react-hook-form";
 import { createUser, isPostCode, isAddressNumber } from "../service";
@@ -7,9 +7,10 @@ import Input from "./Input";
 
 const RegisterForm = () => {
     const [success, setSuccess] = useState(false); //true if registration was success
-    const [responseError, setResponseError] = useState(false); //true if createUser returns an error
+    const [isResponseError, setIsResponseError] = useState(false); //true if createUser returns an error
+    const [responseError, setResponseError] = useState(false); //contains displayed message of response error
 
-    const responseErrorAnimation = useTransition(responseError, {
+    const responseErrorAnimation = useTransition(isResponseError, {
         from: { opacity: 0 },
         enter: { opacity: 1 },
         leave: { opacity: 0 },
@@ -23,14 +24,26 @@ const RegisterForm = () => {
         getValues,
     } = useForm({ mode: "onBlur", reValidateMode: "onBlur" });
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         delete data.pass_confirmation;
-        const error = createUser(data);
-        if (error === null) {
+        const error = await createUser(data);
+        if (error.success) {
             setSuccess(true);
         } else {
-            console.log(error);
-            setResponseError(true);
+            switch (error.error) {
+                case "user exists": {
+                    setIsResponseError(true);
+                    setResponseError("Użytkownik o podanym E-mailu istnieje");
+                    break;
+                }
+                default: {
+                    setIsResponseError(true);
+                    setResponseError(
+                        "Ups, coś poszło nie tak. Spróbuj ponownie później"
+                    );
+                    break;
+                }
+            }
         }
     };
 
@@ -41,7 +54,7 @@ const RegisterForm = () => {
                     id="register-form"
                     className="form"
                     onSubmit={handleSubmit(onSubmit)}
-                    onClick={() => setResponseError(false)}
+                    onClick={() => setIsResponseError(false)}
                 >
                     <h1>Rejestracja</h1>
                     <div className="input-holder">
@@ -205,7 +218,7 @@ const RegisterForm = () => {
                                 className="invalid-footage"
                                 data-testid="invalid-msg"
                             >
-                                Coś poszło nie tak, spróbuj ponownie później
+                                {responseError}
                             </animated.p>
                         ) : (
                             ""
@@ -225,7 +238,7 @@ const RegisterForm = () => {
                     <h2 data-testid="registration-succeed">
                         Rejestracja zakończona!
                     </h2>
-                    <a href="#">Przejdź do serwisu</a>
+                    <a href="/logowanie">Przejdź do serwisu logowania</a>
                 </div>
             )}
         </div>
