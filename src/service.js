@@ -4,7 +4,7 @@ const HOST = "127.0.0.1";
 const PORT = "3001";
 
 let authenticated = false;
-let token="";
+let token =""
 /** Send createUser request
  * @param user user object
  * @return null if success, error if it occurred
@@ -63,39 +63,62 @@ export const isPostCode = (post_code) => {
     return pattern.test(post_code);
 };
 
-
-export const getAnimals=async(data) => {
-    return await axios.get(  `http://${HOST}:${PORT}/getAnimals`,{
-    params: {...data}
-    },{
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-            timeout:1000,
-        },
-    }    ).then((response) => {
-        console.log(response.data)
-        return response.data
-    }).catch((error) => {
-        console.log(error.response.data)
-        return error.response.data;
-    });
-
-}
-
-export const addAnimal =async(data)=>{
-    console.log("działa")
+export const getAnimals = async (data) => {
     return await axios
-    .post(`http://${HOST}:${PORT}/addAnimal`,
-        { ...data },
-        { "Content-Type": "application/json" ,
-        "Authorization": `Bearer ${token}`},
-        { timeout: 3000 }
-    )
-    .then((response) => {
-        return response.data;
-    })
-    .catch((error) => {
-        return error.response.data;
-    });
+        .get(`http://${HOST}:${PORT}/getAnimals`, {
+            params: { ...data },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        .then((response) => {
+            return response.data;
+        })
+        .catch(() => {
+            return "error";
+        });
+};
+
+export const addAnimal = async (data) => {
+    return await axios
+        .post(
+            `http://${HOST}:${PORT}/animal`,
+            { ...data },
+            {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            { timeout: 3000 }
+        )
+        .then((response) => {
+            return response.data;
+        })
+        .catch((error) => {
+            return error.response.data;
+        });
+};
+
+export const deleteAnimal = async (data) => {
+    return await axios
+        .post(
+            `http://${HOST}:${PORT}/deleteAnimal`,
+            { ...data },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        )
+        .then((response) => {
+            return response.data;
+        })
+        .catch((error) => {
+            return error.response.data;
+        });
+};
+
+export const updateAnimal=async(data)=>{
+    console.log("wait")
 }

@@ -59,7 +59,10 @@ describe("Proper registration", () => {
             };
 
             const component = render(<RegisterForm />);
-            createUser.mockReturnValue(null);
+            let obj={
+                success:true
+            }
+            createUser.mockReturnValue(obj);
 
             await act(async () => {
                 for (const [key, value] of Object.entries(properUser)) {
@@ -470,7 +473,7 @@ describe("Proper registration", () => {
 
             expect(warnings.length).toBe(1);
             expect(warnings[0].textContent).toBe(
-                "Coś poszło nie tak, spróbuj ponownie później"
+                "Ups, coś poszło nie tak. Spróbuj ponownie później"
             );
         });
     });

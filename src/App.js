@@ -15,7 +15,7 @@ function App() {
             <Route exact path="/" component={Nothing} />
             <Route exact path="/rejestracja" component={RegisterForm} />
             <Route exact path="/logowanie" component={LoginForm} />
-            <ProtectedRoute exact path="/animals"  component={Animals}/>
+            <Route exact path="/animals"  component={Animals}/>
         </Switch>
     );
 }

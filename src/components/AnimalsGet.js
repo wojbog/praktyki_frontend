@@ -2,42 +2,75 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { getAnimals } from "../service";
+import { useTransition, animated } from "react-spring";
 
-const AnimalsGet = () => {
-    const [wSpecies, setWSpecies] = useState("cattle");//state SpecieAnimal field
+const AnimalsGet = ({ setList }) => {
+    const [wSpecies, setWSpecies] = useState("cattle"); //state SpecieAnimal field
+    const [isResponseError, setIsResponseError] = useState(false); //true if createUser returns an error
+    const [responseError, setResponseError] = useState(false); //contains displayed message of response error
+
+    const responseErrorAnimation = useTransition(isResponseError, {
+        from: { opacity: 0 },
+        enter: { opacity: 1 },
+        leave: { opacity: 0 },
+        config: { duration: 300 },
+    });
+
+    useEffect(() => {
+        async function getData() {
+            const error = await getAnimals();
+            if (error !== "error") {
+                if(error.animals!==null){
+                    setList(error.animals);
+                }
+            } else {
+                setIsResponseError(true);
+                setResponseError(
+                    "Ups, coś poszło nie tak. Spróbuj ponownie później"
+                );
+            }
+        }
+        getData();
+    }, []);
 
     useEffect(() => {
         if (wSpecies === "cattle") {
-            setValue("breedAnimal", "all");
+            setValue("breed", "all");
         } else if (wSpecies === "pig") {
-            setValue("breedAnimal", "all");
+            setValue("breed", "all");
         } else {
-            setValue("breedAnimal", "all");
+            setValue("breed", "all");
         }
     }, [wSpecies]);
 
-    const {
-        handleSubmit,
-        register,
-        setValue,
-    } = useForm({ mode: "onSubmit" });
+    const { handleSubmit, register, setValue } = useForm({ mode: "onSubmit" });
 
-    const onSubmit =async (data) => {
-        if (data.statusAnimal === "all") delete data.statusAnimal;
-        if (data.numberAnimal === "") delete data.numberAnimal;
-        if (data.minBirthDateAnimal === "") delete data.minBirthDateAnimal;
-        if (data.maxBirthDateAnimal === "") delete data.maxBirthDateAnimal;
-        if (data.specieAnimal === "all") delete data.specieAnimal;
-        if (data.breedAnimal === "all") delete data.breedAnimal;
-        if (data.utilityTypeAnimal === "all") delete data.utilityTypeAnimal;
-        if (data.sexAnimal === "all") delete data.sexAnimal;
-        if (data.numberMotherAnimal === "") delete data.numberMotherAnimal;
-        if(Date.parse(data.minBirthDateAnimal)>Date.parse(data.maxBirthDateAnimal)){
-            var pom=data.maxBirthDateAnimal
-            data.maxBirthDateAnimal=data.minBirthDateAnimal;
-            data.minBirthDateAnimal=pom;
+    const onSubmit = async (data) => {
+        if (data.status === "all") delete data.status;
+        if (data.series === "") delete data.series;
+        if (data.minBirthDate === "") delete data.minBirthDate;
+        if (data.maxBirthDate === "") delete data.maxBirthDate;
+        if (data.species === "all") delete data.species;
+        if (data.breed === "all") delete data.breed;
+        if (data.utilityType === "all") delete data.utilityType;
+        if (data.sex === "all") delete data.sex;
+        if (data.motherSeries === "") delete data.motherSeries;
+        if (Date.parse(data.minBirthDate) > Date.parse(data.maxBirthDate)) {
+            var pom = data.maxBirthDate;
+            data.maxBirthDate = data.minBirthDate;
+            data.minBirthDate = pom;
         }
-        await getAnimals(data);
+        const error = await getAnimals(data);
+        if (error !== "error") {
+            if(error.animals!==null){
+                setList(error.animals);
+            }
+        } else {
+            setIsResponseError(true);
+            setResponseError(
+                "Ups, coś poszło nie tak. Spróbuj ponownie później"
+            );
+        }
     };
 
     const changeWSpecies = (event) => {
@@ -58,7 +91,7 @@ const AnimalsGet = () => {
                             <label>Status Zawierzęcia</label>
                             <br />
                             <select
-                                {...register("statusAnimal")}
+                                {...register("status")}
                                 className="normal-input form-select"
                             >
                                 <option value="all">Wszystkie</option>
@@ -66,7 +99,9 @@ const AnimalsGet = () => {
                                 <option value="current">
                                     Obecnie na satnie
                                 </option>
-                                <option value="carrion">Padlina</option>
+                                <option value="carrion">
+                                    Śmierć naturalna
+                                </option>
                             </select>
                         </div>
                         <div>
@@ -78,7 +113,7 @@ const AnimalsGet = () => {
                                 id="numberAnimal"
                                 name="numberAnimal"
                                 placeholder="Wpisz numer"
-                                {...register("numberAnimal")}
+                                {...register("series")}
                                 className="form-input normal-input"
                             />
                         </div>
@@ -92,7 +127,7 @@ const AnimalsGet = () => {
                             <input
                                 id="minBirthDateAnimal"
                                 name="minBirthDateAnimal"
-                                {...register("minBirthDateAnimal")}
+                                {...register("minBirthDate")}
                                 type="date"
                                 className="form-input normal-input"
                             />
@@ -102,7 +137,7 @@ const AnimalsGet = () => {
                             <input
                                 id="maxBirthDateAnimal"
                                 name="maxBirthDateAnimal"
-                                {...register("maxBirthDateAnimal")}
+                                {...register("maxBirthDate")}
                                 type="date"
                                 className="form-input normal-input"
                             />
@@ -115,7 +150,7 @@ const AnimalsGet = () => {
                             <br />
                             <select
                                 id="specieAnimal"
-                                {...register("specieAnimal")}
+                                {...register("species")}
                                 className="normal-input form-select"
                                 onChange={changeWSpecies}
                                 data-testid="specieAnimal"
@@ -130,7 +165,7 @@ const AnimalsGet = () => {
                             <br />
                             {wSpecies === "cattle" && (
                                 <select
-                                    {...register("breedAnimal")}
+                                    {...register("breed")}
                                     className="normal-input form-select"
                                     data-testid="breed-cattle"
                                 >
@@ -143,7 +178,7 @@ const AnimalsGet = () => {
                             )}
                             {wSpecies === "pig" && (
                                 <select
-                                    {...register("breedAnimal")}
+                                    {...register("breed")}
                                     className="normal-input form-select"
                                     data-testid="breed-pig"
                                 >
@@ -160,7 +195,7 @@ const AnimalsGet = () => {
                             )}
                             {wSpecies === "all" && (
                                 <select
-                                    {...register("breedAnimal")}
+                                    {...register("breed")}
                                     className="normal-input form-select"
                                     data-testid="breed-all"
                                 >
@@ -175,7 +210,7 @@ const AnimalsGet = () => {
                             <label>Typ użytkowy</label>
                             <br />
                             <select
-                                {...register("utilityTypeAnimal")}
+                                {...register("utilityType")}
                                 className="normal-input form-select"
                             >
                                 <option value="all">Wszystkie</option>
@@ -188,7 +223,7 @@ const AnimalsGet = () => {
                             <label>Płeć</label>
                             <br />
                             <select
-                                {...register("sexAnimal")}
+                                {...register("sex")}
                                 className="normal-input form-select"
                             >
                                 <option value="all">Wszystkie</option>
@@ -206,11 +241,24 @@ const AnimalsGet = () => {
                                 id="numberMotherAnimal"
                                 name="numberMotherAnimal"
                                 placeholder="Wpisz numer"
-                                {...register("numberMotherAnimal")}
+                                {...register("motherSeries")}
                                 className="form-input normal-input"
                             />
                         </div>
                     </div>
+                    {responseErrorAnimation((style, item) =>
+                        item ? (
+                            <animated.p
+                                style={style}
+                                className="invalid-footage"
+                                data-testid="invalid-msg"
+                            >
+                                {responseError}
+                            </animated.p>
+                        ) : (
+                            ""
+                        )
+                    )}
                     <br></br>
                     <div className="input-holder-animal">
                         <input

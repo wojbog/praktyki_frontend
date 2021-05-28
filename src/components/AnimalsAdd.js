@@ -196,7 +196,7 @@ const AnimalsAdd = () => {
                             className="submit"
                             value="Dodaj"
                             data-testid="add-animal-submit"
-                            style={{ backgroundColor: "#ea1b15" }}
+                            // style={{ backgroundColor: "#ea1b15" }}
                         />
                     </div>
                 </div>
