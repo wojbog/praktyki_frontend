@@ -89,6 +89,14 @@ tr:nth-child(even) {
     border: 0;
 }
 
+tr input,
+select {
+    font-size: 1em;
+}
+tr select {
+    padding: 1px;
+}
+
 .form {
     display: flex;
     flex-direction: column;
@@ -361,32 +369,27 @@ input:checked + .slider::before {
 }
 
 .button {
-    
     width: 150px;
     height: 40px;
     border-radius: 10px;
-    display:flex;
+    display: flex;
     justify-content: space-around;
     align-items: center;
-    
-
 }
 
 .active {
-    background-color: #F3CA40;
+    background-color: #f3ca40;
     color: white;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     cursor: pointer;
 }
 
 .inactive {
-    background-color: #D3D3D3;
+    background-color: #d3d3d3;
     color: white;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     cursor: context-menu;
 }
-
-
 
 #iconDelete {
     color: #e63735;
@@ -407,12 +410,11 @@ input:checked + .slider::before {
     cursor: pointer;
 }
 
-
 .button-container {
     display: flex;
     justify-content: space-between;
     font-size: 22px;
-    margin:15px;
+    margin: 15px;
     padding: 5px;
     /* color: #e63735; */
 }
@@ -420,7 +422,7 @@ input:checked + .slider::before {
 .menu {
     height: 70px;
     width: 1920px;
-    background-color: #F2A541;
+    background-color: #f2a541;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     color: white;
 }

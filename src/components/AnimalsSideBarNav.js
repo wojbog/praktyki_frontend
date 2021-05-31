@@ -3,7 +3,7 @@ import { useState } from "react";
 import AnimalsAdd from "./AnimalsAdd";
 import AnimalsGet from "./AnimalsGet";
 
-const AnimalsSideBarNav = ({setList}) => {
+const AnimalsSideBarNav = ({ setList }) => {
     const [isActiveSearchForm, setIsActiveSearchForm] = useState(false); //fasle if AnimalsGet, true if AnimalsAdd
 
     const changeForm = () => {
@@ -13,7 +13,11 @@ const AnimalsSideBarNav = ({setList}) => {
     return (
         <div className="AnimalsNavBar">
             <div style={{ height: "700px" }}>
-                {!isActiveSearchForm ? <AnimalsGet setList={setList}/> : <AnimalsAdd />}
+                {!isActiveSearchForm ? (
+                    <AnimalsGet setList={setList} />
+                ) : (
+                    <AnimalsAdd />
+                )}
             </div>
             <div className="button-container">
                 <div
@@ -47,17 +51,6 @@ const AnimalsSideBarNav = ({setList}) => {
                     </i>
                 </div>
             </div>
-
-            {/* <div className="input-holder-animal">
-                <label className="switch">
-                    <input type="checkbox" onChange={setWhatForm} />
-                    <span className="slider">
-                        <div className={`${whatForm ? "form2" : "form1"}`}>
-                            {whatFromStr}
-                        </div>
-                    </span>
-                </label>
-            </div> */}
         </div>
     );
 };

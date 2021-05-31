@@ -66,11 +66,25 @@ const AnimalsList = ({ listAnimals, deleteOneAnimal, setValue }) => {
                 {!state ? (
                     <>
                         <td width="150px">{animal.birthDate}</td>
-                        <td width="100px">{animal.species==="cattle"?"bydło":"świnia"}</td>
+                        <td width="100px">
+                            {animal.species === "cattle" ? "bydło" : "świnia"}
+                        </td>
                         <td width="100px">{animal.breed}</td>
-                        <td width="100px">{animal.sex==="male"?"samiec":"samica"}</td>
-                        <td width="100px">{animal.utilityType==="meat"&&"Mięsny"||animal.utilityType==="milk"&&"Mleczny"||animal.utilityType==="combined"&&"Kombinowany"}</td>
-                        <td width="200px">{animal.status==="current"&&"obecnia na stanie"||animal.status==="sold"&&"Sprzedane"||animal.status==="carrion"&&"padlina"}</td>
+                        <td width="100px">
+                            {animal.sex === "male" ? "samiec" : "samica"}
+                        </td>
+                        <td width="100px">
+                            {(animal.utilityType === "meat" && "Mięsny") ||
+                                (animal.utilityType === "milk" && "Mleczny") ||
+                                (animal.utilityType === "combined" &&
+                                    "Kombinowany")}
+                        </td>
+                        <td width="200px">
+                            {(animal.status === "current" &&
+                                "obecnia na stanie") ||
+                                (animal.status === "sold" && "Sprzedane") ||
+                                (animal.status === "carrion" && "padlina")}
+                        </td>
                         <td width="200px">{animal.motherSeries}</td>
                     </>
                 ) : (
@@ -210,7 +224,7 @@ const AnimalsList = ({ listAnimals, deleteOneAnimal, setValue }) => {
                             <th></th>
                         </tr>
                     </thead>
-                    {listAnimals !== null && listAnimals.length > 0 ? (
+                    {listAnimals ? (
                         <tbody>{listAnimals.map(RowAnimals)}</tbody>
                     ) : (
                         <span>Nie ma jeszcze zwierząt</span>
